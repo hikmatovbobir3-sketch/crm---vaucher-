@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA Menswear | Outreach CRM — Список блогеров</title>
+  <meta name="description" content="CRM база блогеров Узбекистана для AURA Menswear: Карши, Бухара, Самарканд. Умный поиск, список, 1-клик рассылка в Telegram, трекинг ваучеров и видео.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="theme-dark">
+
+<div class="container">
+  <!-- Top Glass Header -->
+  <header>
+    <div class="header-top">
+      <div class="brand">
+        <div class="brand-logo">A</div>
+        <div class="brand-text">
+          <h1>AURA Menswear <span class="badge-pill">CRM Outreach</span></h1>
+          <p>База блогеров: Карши (34) • Бухара (125) • Самарканд (58) • Direct (16)</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-header" id="themeToggleBtn" onclick="toggleTheme()">☀️ Светлая тема</button>
+        <button class="btn-header" onclick="exportDataJSON()" title="Скачать резервную копию базы со всеми статусами">💾 Экспорт</button>
+        <button class="btn-header" onclick="document.getElementById('importFileInput').click()" title="Загрузить резервную копию">📥 Импорт</button>
+        <input type="file" id="importFileInput" style="display: none;" accept=".json" onchange="importDataJSON(event)">
+        <button class="btn-header btn-header-primary" onclick="openAddModal()">➕ Найти / Добавить</button>
+      </div>
+    </div>
+
+    <!-- Message Pitch Box -->
+    <div class="message-box">
+      <div class="message-label">
+        <span>📩 Шаблон первого сообщения блогеру (нажмите для редактирования):</span>
+        <button class="copy-all-btn" onclick="copyMasterText()">📋 Скопировать текст</button>
+      </div>
+      <div class="message-text" id="sampleText" contenteditable="true" onblur="saveCustomMessage()">Ассалому алайкум! Яхшимисиз?
+Сизга AURA эркаклар кийим дўкони номидан ҳамкорлик таклифи билан ёзаётгандик.</div>
+    </div>
+  </header>
+
+  <!-- Region Navigation Tabs -->
+  <nav class="region-nav">
+    <button class="region-tab active" id="tabAll" onclick="switchRegion('all')">
+      🌐 Все блогеры <span class="tab-badge" id="badgeAll">233</span>
+    </button>
+    <button class="region-tab" id="tabQarshi" onclick="switchRegion('qarshi')">
+      📍 Карши <span class="tab-badge" id="badgeQarshi">34</span>
+    </button>
+    <button class="region-tab" id="tabBukhara" onclick="switchRegion('bukhara')">
+      🕌 Бухара <span class="tab-badge" id="badgeBukhara">125</span>
+    </button>
+    <button class="region-tab" id="tabSamarkand" onclick="switchRegion('samarkand')">
+      🏛️ Самарканд <span class="tab-badge" id="badgeSamarkand">58</span>
+    </button>
+    <button class="region-tab" id="tabNoContact" onclick="switchRegion('no_contacts')">
+      🚫 Без контактов <span class="tab-badge" id="badgeNoContact">16</span>
+    </button>
+    <button class="region-tab" id="tabTrash" onclick="switchRegion('trash')">
+      🗑️ Корзина <span class="tab-badge" id="badgeTrash">0</span>
+    </button>
+  </nav>
+
+  <!-- Live Search & Filters Center -->
+  <div class="search-center-wrap">
+    <div class="search-input-container">
+      <span class="search-icon-anim">🔍</span>
+      <input 
+        type="text" 
+        id="searchMainInput" 
+        class="search-main-input" 
+        placeholder="Быстрый поиск по @username, Telegram, телефону, имени или нише (нажмите '/' для фокуса)..." 
+        oninput="onSearchInput(this.value)"
+        autocomplete="off"
+      >
+      <div class="search-input-extras">
+        <span class="search-found-badge" id="searchFoundBadge" style="display: none;">Найдено: 0</span>
+        <button class="btn-clear-search" id="btnClearSearch" onclick="clearSearch()" title="Очистить поиск">✕</button>
+        <span class="search-shortcut-hint">/</span>
+      </div>
+    </div>
+
+    <!-- Quick Status Filter Chips & Sorter -->
+    <div class="filter-sort-row">
+      <div class="quick-filter-chips">
+        <button class="filter-chip active" onclick="setQuickFilter('all', this)">Все профили</button>
+        <button class="filter-chip" onclick="setQuickFilter('pending', this)">⏳ Ожидает отправки</button>
+        <button class="filter-chip" onclick="setQuickFilter('sent', this)">✉️ Отправлено</button>
+        <button class="filter-chip" onclick="setQuickFilter('voucher', this)">🎟️ Ваучер выдан</button>
+        <button class="filter-chip" onclick="setQuickFilter('video', this)">🎬 Видео готово</button>
+        <button class="filter-chip" onclick="setQuickFilter('has_tg', this)">✈️ Есть TG</button>
+        <button class="filter-chip" onclick="setQuickFilter('has_phone', this)">📞 Есть телефон</button>
+        <button class="filter-chip" onclick="setQuickFilter('top_followers', this)">👑 Топ (&gt;50k)</button>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);">Сортировка:</label>
+        <select class="sort-select" id="sortSelect" onchange="onSortChange(this.value)">
+          <option value="default">По умолчанию</option>
+          <option value="followers_desc">Подписчики (по убыванию ⬇)</option>
+          <option value="followers_asc">Подписчики (по возрастанию ⬆)</option>
+          <option value="name_asc">По имени / нику (А-Я)</option>
+          <option value="pending_first">Сначала неотправленные</option>
+          <option value="voucher_first">Сначала с ваучером</option>
+          <option value="video_first">Сначала с видео</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress Bar Dashboard -->
+  <div class="progress-dashboard">
+    <div class="progress-header">
+      <span id="progressTitle">📊 Общий прогресс по всей базе (Все города)</span>
+      <span id="progressStatsText">0 из 233 отправлено (0%)</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="progress-metrics">
+      <div class="metric-pill sent">
+        <span>✉️ Разослано:</span>
+        <b id="metricSentCount">0 / 233</b>
+      </div>
+      <div class="metric-pill voucher">
+        <span>🎟️ Выдано ваучеров:</span>
+        <b id="metricVoucherCount">0 / 233</b>
+      </div>
+      <div class="metric-pill video">
+        <span>🎬 Снято видео:</span>
+        <b id="metricVideoCount">0 / 233</b>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRM Blogger List Items Container -->
+  <div class="crm-list-container" id="listContainer">
+    <!-- Populated via JavaScript -->
+  </div>
+</div>
+
+<!-- Modal: Add / Search Blogger -->
+<div class="modal-overlay" id="addModalOverlay" onclick="closeAddModalOnBackdrop(event)">
+  <div class="modal-box">
+    <button class="modal-close-btn" onclick="closeAddModal()">✕</button>
+    <div class="modal-title">🔍 Найти или Добавить блогера</div>
+    <div class="modal-subtitle">Проверьте профиль перед добавлением, чтобы избежать дубликатов</div>
+
+    <div class="modal-form-group">
+      <label>Instagram Username (@handle)</label>
+      <div style="display: flex; gap: 8px;">
+        <input type="text" class="modal-input" id="modalSearchHandle" placeholder="@username" onkeydown="if(event.key==='Enter') checkBloggerExists()">
+        <button class="btn-header btn-header-primary" onclick="checkBloggerExists()" style="white-space: nowrap;">Проверить</button>
+      </div>
+    </div>
+
+    <div class="modal-check-result" id="modalCheckResult"></div>
+
+    <!-- Add Form -->
+    <div id="modalAddForm" style="display: none;">
+      <div style="font-weight: 700; font-size: 13px; color: var(--primary); margin: 16px 0 10px;">➕ Внести блогера в базу:</div>
+      
+      <div class="modal-form-group">
+        <label>Город базы</label>
+        <select class="modal-input" id="modalCitySelect">
+          <option value="qarshi">📍 Карши</option>
+          <option value="bukhara">🕌 Бухара</option>
+          <option value="samarkand">🏛️ Самарканд</option>
+          <option value="no_contacts">🚫 Без контактов</option>
+        </select>
+      </div>
+
+      <div class="modal-form-group">
+        <label>Telegram юзернейм (@username без @)</label>
+        <input type="text" class="modal-input" id="modalTgInput" placeholder="username">
+      </div>
+
+      <div class="modal-form-group">
+        <label>Номер телефона (+998 XX XXX XX XX)</label>
+        <input type="text" class="modal-input" id="modalPhoneInput" placeholder="+998 90 123 45 67">
+      </div>
+
+      <div class="modal-form-group">
+        <label>Количество подписчиков</label>
+        <input type="text" class="modal-input" id="modalFollowersInput" placeholder="например, 25 000">
+      </div>
+
+      <div class="modal-form-group">
+        <label>Имя / Заметка / Тематика</label>
+        <input type="text" class="modal-input" id="modalNoteInput" placeholder="Фитнес / Стилист / Обзоры...">
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-header" onclick="closeAddModal()">Отмена</button>
+        <button class="btn-header btn-header-primary" onclick="submitNewBlogger()">Сохранить блогера</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Notification Toast -->
+<div class="toast" id="toast">
+  <span>✓</span>
+  <span id="toastMsg">Уведомление</span>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
